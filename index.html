@@ -52,6 +52,13 @@
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js');
     }
+
+    // Tymczasowy auto-loop dla automatycznej walki co 3 sekundy
+    setInterval(() => {
+      if (typeof fight === 'function') {
+        fight();
+      }
+    }, 3000);
   </script>
 </body>
 </html>
