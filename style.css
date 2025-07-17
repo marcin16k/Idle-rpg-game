@@ -1,15 +1,15 @@
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  margin: 0;
-  padding: 0;
-  text-align: center;
+  font-family: sans-serif;
+  background: #f0f0f0;
+  padding: 20px;
 }
-
-.game-container {
-  margin-top: 50px;
-}
-
-#inventory, #battle, #level {
+h1 { color: #333; }
+button { margin: 5px 0; padding: 10px; }
+#log {
   margin-top: 20px;
+  height: 150px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
 }
