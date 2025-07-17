@@ -1,18 +1,38 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Idle RPG</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Idle RPG Game</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
 </head>
 <body>
-  <div class="game-container">
-    <h1>Idle RPG</h1>
-    <div id="inventory"></div>
-    <div id="battle"></div>
-    <div id="level"></div>
+  <h1>Idle RPG</h1>
+
+  <p><strong>Poziom:</strong> <span id="level">1</span></p>
+  <p><strong>Złoto:</strong> <span id="gold">0</span></p>
+  <p><strong>XP:</strong> <span id="xp">0</span>/<span id="xpMax">10</span></p>
+
+  <div id="stats">
+    <p>Siła: <span id="strength">0</span></p>
+    <p>Krytyk: <span id="crit">0</span></p>
+    <p>Punkty: <span id="points">5</span></p>
+    <button onclick="addStat('strength')">+ Siła</button>
+    <button onclick="addStat('crit')">+ Krytyk</button>
   </div>
-  <script src="app.js"></script>
+
+  <div id="inventory">Ekwipunek: (pusty)</div>
+  <div id="skills">Czary: (brak)</div>
+
+  <div id="shop">
+    <button onclick="buyItem()">Kup przedmiot (10g)</button>
+    <button onclick="buySpell()">Kup czar (30g)</button>
+  </div>
+
+  <button onclick="fight()">Walka!</button>
+  <div id="log"></div>
+
+  <script src="js/game.js"></script>
 </body>
 </html>
