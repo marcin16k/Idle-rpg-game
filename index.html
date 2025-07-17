@@ -5,34 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Idle RPG Game</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="manifest.json" />
 </head>
 <body>
   <h1>Idle RPG</h1>
-
-  <p><strong>Poziom:</strong> <span id="level">1</span></p>
   <p><strong>Złoto:</strong> <span id="gold">0</span></p>
-  <p><strong>XP:</strong> <span id="xp">0</span>/<span id="xpMax">10</span></p>
+  <p><strong>Poziom:</strong> <span id="level">1</span></p>
+  <p><strong>XP:</strong> <span id="xp">0</span> / <span id="xpMax">10</span></p>
 
-  <div id="stats">
-    <p>Siła: <span id="strength">0</span></p>
-    <p>Krytyk: <span id="crit">0</span></p>
-    <p>Punkty: <span id="points">5</span></p>
-    <button onclick="addStat('strength')">+ Siła</button>
-    <button onclick="addStat('crit')">+ Krytyk</button>
+  <div>
+    <h3>Statystyki</h3>
+    <p>Siła: <span id="strength">0</span> <button onclick="addStat('strength')">+1</button></p>
+    <p>Krytyk: <span id="crit">0</span> <button onclick="addStat('crit')">+1</button></p>
+    <p>Punkty: <span id="points">0</span></p>
   </div>
 
-  <div id="inventory">Ekwipunek: (pusty)</div>
-  <div id="skills">Czary: (brak)</div>
-
-  <div id="shop">
-    <button onclick="buyItem()">Kup przedmiot (10g)</button>
-    <button onclick="buySpell()">Kup czar (30g)</button>
+  <div>
+    <h3>Sklep</h3>
+    <button onclick="buyItem()">Kup przedmiot (10 złota)</button>
+    <button onclick="buySpell()">Kup czar (30 złota)</button>
   </div>
 
-  <button onclick="fight()">Walka!</button>
+  <div>
+    <h3>Ekwipunek</h3>
+    <ul id="inventory"></ul>
+  </div>
+
+  <div>
+    <h3>Czary</h3>
+    <ul id="skills"></ul>
+  </div>
+
   <div id="log"></div>
 
-  <script src="js/game.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
