@@ -1,5 +1,5 @@
-// game.js
 
+// Dane gry
 let data = JSON.parse(localStorage.getItem("idleRpgData")) || {
   username: "Gość",
   level: 1,
@@ -7,36 +7,74 @@ let data = JSON.parse(localStorage.getItem("idleRpgData")) || {
   xpMax: 10,
   gold: 0,
   statPoints: 0,
-  stats: { strength: 0, speed: 0, crit: 0, magic: 0, endurance: 0 },
+  stats: { strength: 0, crit: 0 },
   inventory: [],
   skills: []
 };
 
-const allItems = [
-  { name: "Miecz", stat: "strength", img: "graphics/weapon1.png" },
-  { name: "Topór", stat: "crit", img: "graphics/weapon2.png" },
-  { name: "Laska Maga", stat: "magic", img: "graphics/weapon3.png" }
-];
-
-const allSpells = [
-  { name: "Ognista Kula", type: "damage", power: 5, img: "graphics/spell1.png" },
-  { name: "Magiczna Tarcza", type: "endurance", bonus: 3, img: "graphics/spell2.png" },
-  { name: "Przyspieszenie", type: "speed", bonus: 2, img: "graphics/spell3.png" }
-];
-
+// Lista potworów z grafiką i statystykami
 const allMonsters = [
-  { name: "Goblin", hp: 20, attack: 3, img: "graphics/monster1.png" },
-  { name: "Wilk", hp: 30, attack: 5, img: "graphics/monster2.png" },
-  { name: "Ork", hp: 40, attack: 8, img: "graphics/monster3.png" }
+  { name: "Potwór 1", img: "assets/monsters/monster_1.png", hp: 30, attack: 5 },
+  { name: "Potwór 2", img: "assets/monsters/monster_2.png", hp: 40, attack: 7 },
+  { name: "Potwór 3", img: "assets/monsters/monster_3.png", hp: 50, attack: 8 },
+  { name: "Potwór 4", img: "assets/monsters/monster_4.png", hp: 60, attack: 10 },
+  { name: "Potwór 5", img: "assets/monsters/monster_5.png", hp: 75, attack: 12 },
+  { name: "Potwór 6", img: "assets/monsters/monster_6.png", hp: 100, attack: 15 }
 ];
 
-function setUsername() {
-  const input = document.getElementById("userInput");
-  data.username = input.value.trim() || "Gość";
+// Funkcja aktualizacji UI
+function updateUI() {
+  document.getElementById("level").innerText = data.level;
+  document.getElementById("xp").innerText = data.xp;
+  document.getElementById("xpMax").innerText = data.xpMax;
+  document.getElementById("gold").innerText = data.gold;
+  document.getElementById("strength").innerText = data.stats.strength;
+  document.getElementById("crit").innerText = data.stats.crit;
+  document.getElementById("statPoints").innerText = data.statPoints;
+
+  const invList = document.getElementById("inventoryList");
+  invList.innerHTML = "";
+  data.inventory.forEach(item => {
+    let li = document.createElement("li");
+    li.innerText = `${item.name} (Poziom ${item.level})`;
+    invList.appendChild(li);
+  });
+
+  const skillsList = document.getElementById("skillsList");
+  skillsList.innerHTML = "";
+  data.skills.forEach(spell => {
+    let li = document.createElement("li");
+    li.innerText = spell.name;
+    skillsList.appendChild(li);
+  });
+}
+
+// Walka automatyczna z potworem
+function fight() {
+  const monster = allMonsters[Math.floor(Math.random() * allMonsters.length)];
+  document.getElementById("monsterImage").src = monster.img;
+  document.getElementById("monsterImage").alt = monster.name;
+
+  let xpGain = Math.floor(Math.random() * 10) + 5 + data.stats.strength;
+  let goldGain = Math.floor(Math.random() * 5) + 1;
+
+  if (Math.random() < data.stats.crit * 0.01) xpGain *= 2;
+
+  data.xp += xpGain;
+  data.gold += goldGain;
+
+  while (data.xp >= data.xpMax) {
+    data.xp -= data.xpMax;
+    data.level++;
+    data.xpMax = Math.floor(data.xpMax * 1.25);
+    data.statPoints += 1;
+  }
+
   updateUI();
   saveGame();
 }
 
+// Dodanie punktów statystyk
 function addStat(stat) {
   if (data.statPoints > 0) {
     data.stats[stat]++;
@@ -46,113 +84,46 @@ function addStat(stat) {
   }
 }
 
+// Kupowanie przedmiotu
 function buyItem() {
-  const cost = 10;
-  if (data.gold < cost) return log("Za mało złota!");
-
-  const available = allItems.filter(item => !data.inventory.some(i => i.name === item.name));
-  if (available.length === 0) return log("Masz już wszystkie przedmioty!");
-
-  const chosen = available[Math.floor(Math.random() * available.length)];
-  const bonus = Math.floor(Math.random() * 3) + 1;
-  const level = Math.floor(Math.random() * 20) + 1;
-
-  const newItem = {
-    name: `${chosen.name} Lv.${level}`,
-    stat: chosen.stat,
-    bonus,
-    level,
-    img: chosen.img
-  };
-
-  data.inventory.push(newItem);
-  data.gold -= cost;
-  log(`🗡️ Kupiono przedmiot: ${newItem.name} (+${bonus} do ${chosen.stat})`);
-  updateUI();
-  saveGame();
-}
-
-function buySpell() {
-  const cost = 30;
-  if (data.gold < cost) return log("Za mało złota!");
-
-  const available = allSpells.filter(s => !data.skills.some(sp => sp.name === s.name));
-  if (available.length === 0) return log("Masz już wszystkie czary!");
-
-  const spell = available[Math.floor(Math.random() * available.length)];
-  data.skills.push(spell);
-  data.gold -= cost;
-
-  log(`✨ Nauczono czar: ${spell.name}`);
-  updateUI();
-  saveGame();
-}
-
-function fight() {
-  const monster = allMonsters[Math.floor(Math.random() * allMonsters.length)];
-  document.getElementById("monsterImage").src = monster.img;
-  document.getElementById("monsterImage").alt = monster.name;
-
-  let playerAttack = 5 + data.stats.strength + data.stats.magic;
-  data.inventory.forEach(item => {
-    if (item.stat === "strength") playerAttack += item.bonus;
-    if (item.stat === "crit" && Math.random() < data.stats.crit / 100) playerAttack *= 2;
-    if (item.stat === "magic") playerAttack += item.bonus;
-  });
-
-  data.skills.forEach(spell => {
-    if (spell.type === "damage") playerAttack += spell.power;
-    if (spell.type === "endurance") data.stats.endurance += spell.bonus;
-    if (spell.type === "speed") data.stats.speed += spell.bonus;
-  });
-
-  const damage = Math.min(playerAttack, monster.hp);
-  const xpGain = Math.floor(monster.hp / 2) + data.stats.magic;
-  const goldGain = Math.floor(monster.attack / 2) + data.stats.speed;
-
-  data.xp += xpGain;
-  data.gold += goldGain;
-
-  log(`🧟‍♂️ Walka z ${monster.name}: Zadałeś ${damage} dmg. +${xpGain} XP, +${goldGain} złota.`);
-
-  if (data.xp >= data.xpMax) {
-    data.level++;
-    data.statPoints += 3;
-    data.xp -= data.xpMax;
-    data.xpMax = Math.floor(data.xpMax * 1.25);
-    log(`🎉 Awans! Masz teraz poziom ${data.level}`);
+  if (data.gold >= 10) {
+    const item = {
+      name: "Miecz Lv." + data.level,
+      level: data.level
+    };
+    data.inventory.push(item);
+    data.gold -= 10;
+    updateUI();
+    saveGame();
   }
-
-  updateUI();
-  saveGame();
 }
 
-function log(msg) {
-  const logDiv = document.getElementById("log");
-  logDiv.innerHTML += `<p>${msg}</p>`;
-  logDiv.scrollTop = logDiv.scrollHeight;
+// Kupowanie czaru
+function buySpell() {
+  if (data.gold >= 30) {
+    const spell = {
+      name: "Czar Lv." + data.level
+    };
+    data.skills.push(spell);
+    data.gold -= 30;
+    updateUI();
+    saveGame();
+  }
 }
 
-function autoFightLoop() {
-  setInterval(() => {
-    fight();
-  }, 4000); // co 4 sekundy
-}
-
+// Zapisz i wczytaj
 function saveGame() {
   localStorage.setItem("idleRpgData", JSON.stringify(data));
 }
 
 function loadGame() {
   const saved = localStorage.getItem("idleRpgData");
-  if (saved) {
-    data = JSON.parse(saved);
-    updateUI();
-  }
+  if (saved) data = JSON.parse(saved);
+  updateUI();
 }
 
+// Uruchomienie
 window.onload = () => {
   loadGame();
-  updateUI();
-  autoFightLoop();
+  setInterval(fight, 5000);
 };
