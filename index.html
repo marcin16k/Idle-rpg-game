@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Idle RPG Multiplayer</title>
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#ffffff" />
@@ -11,34 +11,38 @@
 <body>
   <div id="game-container">
     <h1>Idle RPG</h1>
-    <p>Złoto: <span id="gold">0</span></p>
-    <p>Poziom: <span id="level">1</span></p>
-    <p>XP: <span id="xp">0</span> / <span id="xpMax">10</span></p>
 
-    <div id="stats">
+    <div class="window">
+      <h3>Postać</h3>
+      <p><strong>Złoto:</strong> <span id="gold">0</span></p>
+      <p><strong>Poziom:</strong> <span id="level">1</span></p>
+      <p><strong>XP:</strong> <span id="xp">0</span> / <span id="xpMax">10</span></p>
+    </div>
+
+    <div class="window">
       <h3>Statystyki</h3>
-      <p>Siła: <span id="strength">0</span> <button onclick="addStat('strength')">+1</button></p>
-      <p>Krytyk: <span id="crit">0</span> <button onclick="addStat('crit')">+1</button></p>
-      <p>Punkty: <span id="statPoints">0</span></p>
+      <p><img src="graphics/strength.png" class="icon" /> Siła: <span id="strength">0</span> <button onclick="addStat('strength')">+1</button></p>
+      <p><img src="graphics/crit.png" class="icon" /> Krytyk: <span id="crit">0</span> <button onclick="addStat('crit')">+1</button></p>
+      <p>Punkty do rozdania: <span id="statPoints">0</span></p>
     </div>
 
-    <div id="shop">
+    <div class="window">
       <h3>Sklep</h3>
-      <button onclick="buyItem()">Kup przedmiot (10 złota)</button>
-      <button onclick="buySpell()">Kup czar (30 złota)</button>
+      <button onclick="buyItem()">🛒 Kup przedmiot (10 złota)</button>
+      <button onclick="buySpell()">✨ Kup czar (30 złota)</button>
     </div>
 
-    <div id="inventory">
+    <div class="window">
       <h3>Ekwipunek</h3>
       <ul id="inventoryList"></ul>
     </div>
 
-    <div id="skills">
+    <div class="window">
       <h3>Czary</h3>
       <ul id="skillsList"></ul>
     </div>
 
-    <div id="log"></div>
+    <div id="log" class="window"></div>
   </div>
 
   <script src="js/game.js"></script>
