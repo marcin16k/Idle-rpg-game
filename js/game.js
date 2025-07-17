@@ -1,99 +1,81 @@
-let data = JSON.parse(localStorage.getItem("idleRpgData")) || {
-  level: 1,
-  xp: 0,
-  xpMax: 10,
-  gold: 0,
-  points: 0,
-  stats: { strength: 0, crit: 0 },
-  inventory: [],
-  skills: []
-};
+import { saveGame, loadGame } from "./save.js";
+import { updateUI, log } from "./ui.js";
 
-const items = ["Miecz", "Tarcza", "Zbroja"];
-const spells = ["Ognista Kula", "Magiczna Tarcza"];
+const state = loadGame();
 
-function updateUI() {
-  document.getElementById("level").innerText = data.level;
-  document.getElementById("xp").innerText = data.xp;
-  document.getElementById("xpMax").innerText = data.xpMax;
-  document.getElementById("gold").innerText = data.gold;
-  document.getElementById("strength").innerText = data.stats.strength;
-  document.getElementById("crit").innerText = data.stats.crit;
-  document.getElementById("points").innerText = data.points;
+// Dostępne czary i itemy
+const spells = [
+  { name: "Ognista Kula", effect: () => 5 },
+  { name: "Magiczna Tarcza", bonusCrit: 5 }
+];
 
-  document.getElementById("inventory").innerHTML = data.inventory.map(i => `<li>${i}</li>`).join("");
-  document.getElementById("skills").innerHTML = data.skills.map(s => `<li>${s}</li>`).join("");
-}
+const items = [
+  { name: "Miecz +1", bonus: 1 },
+  { name: "Zbroja +2", bonus: 2 }
+];
 
-function log(msg) {
-  document.getElementById("log").innerHTML += msg + "<br>";
-}
+// Automatyczna walka co 3s
+setInterval(() => {
+  let xpGain = 5 + state.stats.strength;
+  let goldGain = 2;
 
-function save() {
-  localStorage.setItem("idleRpgData", JSON.stringify(data));
-}
-
-function fight() {
-  let xpGain = 5 + Math.floor(Math.random() * 5) + data.stats.strength;
-  let goldGain = 3 + Math.floor(Math.random() * 5);
-
-  if (Math.random() < data.stats.crit * 0.01) {
+  if (Math.random() < state.stats.crit * 0.01) {
     xpGain *= 2;
-    log("<b>Krytyczny cios!</b>");
+    log("🔥 Krytyczny cios!");
   }
 
-  data.xp += xpGain;
-  data.gold += goldGain;
+  state.skills.forEach(spell => {
+    if (spell.effect) xpGain += spell.effect();
+    if (spell.bonusCrit) state.stats.crit += spell.bonusCrit;
+  });
+
+  state.xp += xpGain;
+  state.gold += goldGain;
   log(`+${xpGain} XP, +${goldGain} złota`);
 
-  if (data.xp >= data.xpMax) {
-    data.level++;
-    data.xp -= data.xpMax;
-    data.xpMax = Math.floor(data.xpMax * 1.2);
-    data.points += 2;
-    log(`<b>Awansowałeś na poziom ${data.level}!</b>`);
+  // Level up
+  while (state.xp >= state.xpMax) {
+    state.xp -= state.xpMax;
+    state.level++;
+    state.statPoints += 1;
+    state.xpMax = Math.floor(state.xpMax * 1.2);
+    log(`🆙 Awans na poziom ${state.level}`);
   }
 
-  updateUI();
-  save();
-}
+  saveGame(state);
+  updateUI(state);
+}, 3000);
 
-function addStat(stat) {
-  if (data.points > 0) {
-    data.stats[stat]++;
-    data.points--;
-    updateUI();
-    save();
+// Dodanie punktu statystyki
+window.addStat = function(stat) {
+  if (state.statPoints > 0) {
+    state.stats[stat]++;
+    state.statPoints--;
+    saveGame(state);
+    updateUI(state);
   }
-}
+};
 
-function buyItem() {
-  if (data.gold < 10) return log("Za mało złota!");
-  const item = items[Math.floor(Math.random() * items.length)];
-  if (!data.inventory.includes(item)) {
-    data.inventory.push(item);
-    data.gold -= 10;
-    log("Kupiono przedmiot: " + item);
-    updateUI();
-    save();
-  } else {
-    log("Masz już ten przedmiot");
-  }
-}
+// Kupowanie czaru
+window.buySpell = function() {
+  if (state.gold < 30) return log("❌ Za mało złota");
+  const spell = spells.find(s => !state.skills.some(h => h.name === s.name));
+  if (!spell) return log("✅ Masz już wszystkie czary");
+  state.gold -= 30;
+  state.skills.push(spell);
+  saveGame(state);
+  updateUI(state);
+  log(`📜 Nauczono czaru: ${spell.name}`);
+};
 
-function buySpell() {
-  if (data.gold < 30) return log("Za mało złota!");
-  const spell = spells[Math.floor(Math.random() * spells.length)];
-  if (!data.skills.includes(spell)) {
-    data.skills.push(spell);
-    data.gold -= 30;
-    log("Nauczono czaru: " + spell);
-    updateUI();
-    save();
-  } else {
-    log("Masz już ten czar");
-  }
-}
-
-updateUI();
-setInterval(fight, 3000); // automatyczna walka co 3 sekundy
+// Kupowanie przedmiotu
+window.buyItem = function() {
+  if (state.gold < 10) return log("❌ Za mało złota");
+  const item = items.find(i => !state.inventory.some(h => h.name === i.name));
+  if (!item) return log("✅ Masz już wszystkie przedmioty");
+  state.gold -= 10;
+  state.inventory.push(item);
+  saveGame(state);
+  updateUI(state);
+  log(`🛡️ Kupiono przedmiot: ${item.name}`);
+};
